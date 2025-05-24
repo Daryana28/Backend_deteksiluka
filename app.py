@@ -1,16 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 import numpy as np
 from PIL import Image
 import io
+from model_loader import load_skin_model
 
 app = Flask(__name__)
 CORS(app)
 
 # Load model dan label
-model = load_model("model_deteksi_luka.h5")
+model = load_skin_model()
 labels = ['Abrasions', 'Bruises', 'Burns', 'Cut', 'Ingrown_nails', 'Laceration', 'Stab_wound']
 
 # Endpoint deteksi luka
