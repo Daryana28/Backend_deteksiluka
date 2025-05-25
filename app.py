@@ -4,7 +4,7 @@ from tensorflow.keras.preprocessing.image import img_to_array
 import numpy as np
 from PIL import Image
 import io
-from model_loader import load_skin_model
+from model_loader import load_tflite_interpreter
 
 app = Flask(__name__)
 CORS(app)
@@ -13,9 +13,19 @@ CORS(app)
 def index():
     return jsonify({"status": "LukaLens backend siap!"})
 
-# Load model dan label
-model = load_skin_model()
+# Load model TFLite dan label
+interpreter = load_tflite_interpreter()
 labels = ['Abrasions', 'Bruises', 'Burns', 'Cut', 'Ingrown_nails', 'Laceration', 'Stab_wound']
+
+def predict_image_tflite(image_array, interpreter):
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+
+    input_data = np.expand_dims(image_array, axis=0).astype(np.float32)
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+    interpreter.invoke()
+    output_data = interpreter.get_tensor(output_details[0]['index'])
+    return output_data
 
 # Endpoint deteksi luka
 @app.route('/detect', methods=['POST'])
@@ -28,9 +38,8 @@ def detect():
     image = image.resize((224, 224))
 
     arr = img_to_array(image) / 255.0
-    arr = np.expand_dims(arr, axis=0)
 
-    pred = model.predict(arr)
+    pred = predict_image_tflite(arr, interpreter)
     idx = np.argmax(pred)
     confidence = float(np.max(pred))
 
