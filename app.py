@@ -9,6 +9,10 @@ from model_loader import load_skin_model
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/')
+def index():
+    return jsonify({"status": "LukaLens backend siap!"})
+
 # Load model dan label
 model = load_skin_model()
 labels = ['Abrasions', 'Bruises', 'Burns', 'Cut', 'Ingrown_nails', 'Laceration', 'Stab_wound']
