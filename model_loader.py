@@ -1,18 +1,19 @@
 import os
-import requests
+import gdown
 from tensorflow.keras.models import load_model
 
 def download_model_from_drive():
     file_id = '103z0h6J-iAKJhk-tJ-r_04-PeD8PqPTR'
-    url = f'https://drive.google.com/uc?export=download&id={file_id}'
-    print("Mengunduh model dari Google Drive...")
-    response = requests.get(url)
-    with open("model_deteksi_luka.h5", "wb") as f:
-        f.write(response.content)
-    print("Model berhasil diunduh.")
+    url = f'https://drive.google.com/uc?id={file_id}'
+    output = "model_deteksi_luka.h5"
+
+    if not os.path.exists(output):
+        print("Mengunduh model dari Google Drive...")
+        gdown.download(url, output, quiet=False)
+        print("Model berhasil diunduh.")
+    else:
+        print("Model sudah tersedia secara lokal.")
 
 def load_skin_model():
-    if not os.path.exists("model_deteksi_luka.h5"):
-        download_model_from_drive()
-    model = load_model("model_deteksi_luka.h5")
-    return model
+    download_model_from_drive()
+    return load_model("model_deteksi_luka.h5")
